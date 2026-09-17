@@ -32,8 +32,41 @@ theorem rowSums_adjPlusIdentity_pos (G : Graph N) (i : Fin N) :
     0 < rowSums (adjPlusIdentity G) i := by
   unfold rowSums
   have h_le :
-      adjPlusIdentity G i i ≤ ∑ j, adjPlusIdentity G i j := by
+    adjPlusIdentity G i i ≤ ∑ j, adjPlusIdentity G i j := by
     apply Finset.single_le_sum
     · intro j hj
-      simp [adjPlusIdentity, adjacencyMatrix]
+      by_cases h : i = j
+      · subst j
+        simp [adjPlusIdentity, adjacencyMatrix, SimpleGraph.irrefl]
+      · by_cases hAdj : G.Adj i j
+        · simp [adjPlusIdentity, adjacencyMatrix, h, hAdj]
+        · simp [adjPlusIdentity, adjacencyMatrix, h, hAdj]
+    · simp
+  rw [adjPlusIdentity_diagonal_eq_one G i] at h_le
+  linarith
+
+theorem normalizedAdjacencyMatrix_rowStochastic (G : Graph N) :
+    normalizedAdjacencyMatrix G ∈ Matrix.rowStochastic ℝ (Fin N) := by
+  rw [Matrix.mem_rowStochastic_iff_sum]
+  constructor
+  · intro i j
+    simp [normalizedAdjacencyMatrix, inverseDegMatrix]
+
+    have hpos : 0 < rowSums (adjPlusIdentity G) i :=
+      rowSums_adjPlusIdentity_pos G i
+
+    have hinv : 0 ≤ (rowSums (adjPlusIdentity G) i)⁻¹ := by
+      positivity
+
+    have hentry : 0 ≤ adjPlusIdentity G i j := by
+      by_cases h : i = j
+      · subst j
+        simp [adjPlusIdentity, adjacencyMatrix, SimpleGraph.irrefl]
+      · by_cases hAdj : G.Adj i j
+        · simp [adjPlusIdentity, adjacencyMatrix, h, hAdj]
+         simp [adjPlusIdentity, adjacencyMatrix, h, hAdj]
+
+    exact mul_nonneg hinv hentry
+  · intro i
+    simp [normalizedAdjacencyMatrix, inverseDegMatrix]
 end IWS
