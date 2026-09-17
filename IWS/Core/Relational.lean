@@ -64,9 +64,15 @@ theorem normalizedAdjacencyMatrix_rowStochastic (G : Graph N) :
         simp [adjPlusIdentity, adjacencyMatrix, SimpleGraph.irrefl]
       · by_cases hAdj : G.Adj i j
         · simp [adjPlusIdentity, adjacencyMatrix, h, hAdj]
-         simp [adjPlusIdentity, adjacencyMatrix, h, hAdj]
+        · simp [adjPlusIdentity, adjacencyMatrix, h, hAdj]
 
     exact mul_nonneg hinv hentry
   · intro i
     simp [normalizedAdjacencyMatrix, inverseDegMatrix]
+    rw [← Finset.mul_sum]
+    change (rowSums (adjPlusIdentity G) i)⁻¹
+    * rowSums (adjPlusIdentity G) i = 1
+    have hne : rowSums (adjPlusIdentity G) i ≠ 0 :=
+      ne_of_gt (rowSums_adjPlusIdentity_pos G i)
+    exact inv_mul_cancel₀ hne
 end IWS
