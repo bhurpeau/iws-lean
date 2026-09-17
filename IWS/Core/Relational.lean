@@ -1,6 +1,9 @@
 import IWS.Core.State
+set_option linter.style.header false
 
 namespace IWS
+
+noncomputable section
 
 def adjacencyMatrix (G : Graph N) : Matrix (Fin N) (Fin N) ℝ := by
   classical
@@ -12,10 +15,25 @@ def adjPlusIdentity (G : Graph N) : Matrix (Fin N) (Fin N) ℝ :=
 def rowSums (M : Matrix (Fin N) (Fin N) ℝ) (i : Fin N) : ℝ :=
   ∑ j : Fin N, M i j
 
-def inverseDegMatrix (G : Graph (Fin N)) : Matrix (Fin N) (Fin N) ℝ :=
+def inverseDegMatrix (G : Graph N) : Matrix (Fin N) (Fin N) ℝ :=
   Matrix.diagonal fun i => (rowSums (adjPlusIdentity G) i)⁻¹
 
-def normalizedAdjacencyMatrix (G : Graph (Fin N)) : Matrix (Fin N) (Fin N) ℝ :=
+def normalizedAdjacencyMatrix (G : Graph N) :
+    Matrix (Fin N) (Fin N) ℝ :=
   inverseDegMatrix G * adjPlusIdentity G
 
+end
+
+theorem adjPlusIdentity_diagonal_eq_one (G : Graph N) (i : Fin N) :
+    adjPlusIdentity G i i = 1 := by
+  simp [adjPlusIdentity, adjacencyMatrix, SimpleGraph.irrefl]
+
+theorem rowSums_adjPlusIdentity_pos (G : Graph N) (i : Fin N) :
+    0 < rowSums (adjPlusIdentity G) i := by
+  unfold rowSums
+  have h_le :
+      adjPlusIdentity G i i ≤ ∑ j, adjPlusIdentity G i j := by
+    apply Finset.single_le_sum
+    · intro j hj
+      simp [adjPlusIdentity, adjacencyMatrix]
 end IWS
