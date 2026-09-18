@@ -24,8 +24,6 @@ abbrev Graph (N : ℕ) :=
 
 variable (G : Graph N)
 
-def norm_inf_2 (H : Fin N → InternalVec d) : ℝ := ‖H‖
-
 example (G : Graph N) (i : Fin N) :
     ¬ G.Adj i i := by
   exact G.loopless.irrefl i
